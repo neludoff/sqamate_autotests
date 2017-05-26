@@ -1,0 +1,1 @@
+# sqamate_autotests

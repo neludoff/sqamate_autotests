@@ -2,34 +2,33 @@ import pytest
 from selenium import webdriver
 from random import randint
 
+
 @pytest.fixture
 def driver(request):
     wd = webdriver.Chrome()
-    wd.implicitly_wait(5)
+    wd.implicitly_wait(5)  # what is 5? why 5?
     request.addfinalizer(wd.quit)
     return wd
 
-pwd = 'secret'
 
-def test_1_signup(driver):
-    driver.get("https://sqamate.com/signup/")
+host = 'https://sqamate.com'
+login = 'test_' + str(randint(0, 1000)) + '@sqamate.com'  # don't use 'log' not for logs
+password = 'secret'
 
-    while True:
-        global log
-        log = 'test_' + str(randint(0, 1000)) + '@sqamate.com'
-        driver.find_element_by_name("login").send_keys(log)
-        driver.find_element_by_name("password").send_keys(pwd)
-        driver.find_element_by_class_name('button').click()
 
-        # если не находим алерт, то выходим из функции. Если находим алерт (т.е. уже имеется такой имэйл), то генерим
-        #  имэйл заново.
-        if len(driver.find_elements_by_class_name('alert')) == 0:
-            print('\nСоздана учетная запись пользователя ' + log)
-            return
+def signup(driver):
+    driver.get(host + '/signup/')
 
-def test_2_login(driver):
-    driver.get("https://sqamate.com/login/")
+    driver = login(driver)
+    if driver.find_elements_by_class_name('alert'):  # python understands [], {}, None, False, 0 as false
+        print 'Created ' + login  # don't need print('...') just print ...
 
-    driver.find_element_by_name("login").send_keys(log)
-    driver.find_element_by_name("password").send_keys(pwd)
+
+def login(driver):
+    driver.get(host + '/login/')
+
+    driver.find_element_by_name("login").send_keys(login)
+    driver.find_element_by_name("password").send_keys(password)
     driver.find_element_by_class_name('button').click()
+
+    return driver  # added return driver because same code was in signup, so i reused login
